@@ -1,0 +1,9 @@
+{
+    // needs to "link" the projects here, so rust-analyzer loads and provides help etc.
+    "rust-analyzer.linkedProjects": [
+        "2020/day-1/rust/part-1/Cargo.toml",
+        
+        "2021/day-1/rust/part-1/Cargo.toml",
+        "2021/day-1/rust/part-2/Cargo.toml"
+    ]
+}
