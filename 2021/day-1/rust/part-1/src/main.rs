@@ -7,11 +7,10 @@ fn main() {
     let filename = &args[1];
 
     let contents = fs::read_to_string(filename).expect("Something went wrong reading the file");
-    let lines = contents.split("\n"); // this returns an iterator, also splitting on "\n" doesn't work for files using CRLF
 
     let mut previous_depth = -1;
     let mut positive_measurements = -1;
-    for line in lines {
+    for line in contents.lines() {
         let depth: i32 = line.parse().unwrap();
 
         if depth > previous_depth {
