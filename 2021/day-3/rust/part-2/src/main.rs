@@ -18,7 +18,7 @@ fn get_life_support_ratings(diagnostic_readings: Lines) -> (i32, i32) {
         if diagnostic.is_empty() {
             continue;
         }
-        let mut diagnostic_data: Vec<char> = diagnostic.chars().collect(); // have to use a Vec<Vec<char>> go i can call get, bc nth consumes values in iterator
+        let diagnostic_data: Vec<char> = diagnostic.chars().collect(); // have to use a Vec<Vec<char>> go i can call get, bc nth consumes values in iterator
         match diagnostic_data.get(bit) {
             Some('0') => zeros.push(diagnostic_data),
             Some('1') => ones.push(diagnostic_data),
@@ -42,7 +42,7 @@ fn get_life_support_ratings(diagnostic_readings: Lines) -> (i32, i32) {
         
         println!("bit: {}\nzero.len: {}\nones.len: {}\noxygen_diagnostics.len: {}", bit, zeros.len(), ones.len(), oxygen_diagnostics.len());
 
-        for mut diagnostic in oxygen_diagnostics {
+        for diagnostic in oxygen_diagnostics {
             println!("{:?}", diagnostic);
             match diagnostic.get(bit) {
                 Some('0') => zeros.push(diagnostic),
@@ -66,7 +66,7 @@ fn get_life_support_ratings(diagnostic_readings: Lines) -> (i32, i32) {
         zeros.clear();
         ones.clear();
 
-        for mut diagnostic in co2_diagnostics {
+        for diagnostic in co2_diagnostics {
             match diagnostic.get(bit) {
                 Some('0') => zeros.push(diagnostic),
                 Some('1') => ones.push(diagnostic),
