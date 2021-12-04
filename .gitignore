@@ -10,4 +10,4 @@
 **/*.rs.bk
 
 # exclude AOC input files
-**/aoc-input*.txt
+**/aoc-*.txt
