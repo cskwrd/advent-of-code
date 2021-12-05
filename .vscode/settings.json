@@ -9,6 +9,8 @@
         "2021/day-2/rust/part-2/Cargo.toml",
         "2021/day-3/rust/part-1/Cargo.toml",
         "2021/day-3/rust/part-2/Cargo.toml",
-        "2021/day-4/rust/part-1/Cargo.toml"
+        "2021/day-4/rust/part-1/Cargo.toml",
+
+        "2021/day-5/rust/part-1/Cargo.toml"
     ]
 }
