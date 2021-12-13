@@ -17,6 +17,7 @@
         "2021/day-6/rust/part-2/Cargo.toml",
         "2021/day-7/rust/part-1/Cargo.toml",
         "2021/day-7/rust/part-2/Cargo.toml",
-        "2021/day-8/rust/part-1/Cargo.toml"
+        "2021/day-8/rust/part-1/Cargo.toml",
+        "2021/day-8/rust/part-2/Cargo.toml"
     ]
 }
