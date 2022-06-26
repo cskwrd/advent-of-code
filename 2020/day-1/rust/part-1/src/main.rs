@@ -11,7 +11,7 @@ fn main() {
     let mut expenses = HashMap::<i32, i32>::new();
 
     let contents = fs::read_to_string(filename).expect("Something went wrong reading the file");
-    let lines = contents.split("\n"); // this returns an iterator, also splitting on "\n" doesn't work for files using CRLF
+    let lines = contents.split('\n'); // this returns an iterator, also splitting on "\n" doesn't work for files using CRLF
 
     for line in lines {
         let item: i32 = line.parse().unwrap();
