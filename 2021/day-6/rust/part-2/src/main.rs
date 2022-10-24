@@ -1,4 +1,4 @@
-use std::{collections::{LinkedList}, fmt::{Display, self, Debug}};
+use std::collections::HashMap;
 
 fn main() {
     let args: Vec<String> = std::env::args().collect();
@@ -10,77 +10,61 @@ fn main() {
     let contents = std::fs::read_to_string(config.input_file).expect("Something went wrong reading the file");
     let input = contents.lines().next().unwrap();
 
-    let mut school_of_fish: LinkedList<LanternFish> = LinkedList::new();
-    // let mut something_else: HashMap<i32, LanternFish> = HashMap::new();
-    // for fish_timer in input.split(',') {
-    //     let new_fish = LanternFish::new(fish_timer.parse().unwrap(), 0);
-    //     if let Some(existing_fish) = something_else.get_mut(&new_fish.timer) {
-    //         (*existing_fish).mutations += 1;
-    //     } else {
-    //         something_else.insert(new_fish.timer, new_fish);
-    //         school_of_fish.push_back(new_fish.clone());
-    //     }
-    // }
+    let mut school_of_fish_hash_map: HashMap<i32, i64> = HashMap::new();
     for fish_timer in input.split(',') {
-        school_of_fish.push_back(LanternFish::new(fish_timer.parse().unwrap(), 0))
+        let timer = fish_timer.parse().unwrap();
+        if let Some(bucket) = school_of_fish_hash_map.get(&timer) {
+            school_of_fish_hash_map.insert(timer, bucket+1);
+        } else {
+            school_of_fish_hash_map.insert(timer, 1);
+        }
     }
-
-    // println!("School: {:?}", school_of_fish);
-
-    if input.len() <= 10 {
-        println!("Initial state: [{}]", input);
-    } else {
-        println!("Initial state: [{} fish]", school_of_fish.len());
-    }
+    println!("School: {:?}", school_of_fish_hash_map);
     
     let days = config.days;
-    let mut baby_sharks: LinkedList<LanternFish> = LinkedList::new();
     for i in 0..days {
-        for fish in school_of_fish.iter_mut() {
-            if let Some(baby_shark) = fish.advance_age() {
-                baby_sharks.push_back(baby_shark);
+        println!("Day: {}", i + 1);
+        let mut new_school_of_fish_hash_map: HashMap<i32, i64> = HashMap::new();
+        for internal_timer in (0..9).rev() {
+            if let Some(existing_fish) = school_of_fish_hash_map.get(&internal_timer) {
+                let (next_class, overflow) = get_next_class(&internal_timer);
+                if overflow {
+                    if new_school_of_fish_hash_map.contains_key(&8) == false {
+                        new_school_of_fish_hash_map.insert(8, existing_fish.clone());
+                    } else {
+                        let new_class_of_fish = new_school_of_fish_hash_map.get(&8).unwrap();
+                        let updated_class = existing_fish + new_class_of_fish;
+                        new_school_of_fish_hash_map.insert(8, updated_class);
+                    }
+                }
+                if new_school_of_fish_hash_map.contains_key(&next_class) == false {
+                    new_school_of_fish_hash_map.insert(next_class, existing_fish.clone());
+                } else {
+                    let new_class_of_fish = new_school_of_fish_hash_map.get(&next_class).unwrap();
+                    let updated_class = existing_fish + new_class_of_fish;
+                    new_school_of_fish_hash_map.insert(next_class, updated_class);
+                }
             }
         }
-        school_of_fish.append(&mut baby_sharks);
-        println!("After {} days: {:?}", i+1, school_of_fish);
+        school_of_fish_hash_map = new_school_of_fish_hash_map;
     }
 
-    println!("{} fish are in class", school_of_fish.len());
-}
-
-#[derive(Clone, Copy)]
-struct LanternFish {
-    timer: i32,
-    mutations: i32,
-}
-
-impl LanternFish {
-    fn new(timer: i32, mutations: i32) -> LanternFish {
-        LanternFish { timer, mutations }
-    }
-
-    fn advance_age(&mut self) -> Option<LanternFish> {
-        self.timer -= 1;
-        match self.timer {
-            -1 => {
-                self.timer = 6;
-                Some(LanternFish::new(8, 0))
-            },
-            _ => None,
+    let mut num_fish = 0;
+    for day in 0..9 {
+        if let Some(fish) = school_of_fish_hash_map.get(&day) {
+            num_fish += fish;
         }
     }
+    // println!("School: {:?}", school_of_fish_hash_map);
+    println!("Total number: {}", num_fish);
 }
 
-impl Display for LanternFish {
-    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
-        write!(f, "{}", self.timer)
+fn get_next_class(current_class: &i32) -> (i32, bool) {
+    let next_class = current_class - 1;
+    if next_class < 0 {
+        return (6, true)
     }
-}
-
-impl Debug for LanternFish {
-    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
-        write!(f, "{}@{}", self.mutations + 1, self.timer)
-    }
+    (next_class, false)
 }
 
 struct Config {
