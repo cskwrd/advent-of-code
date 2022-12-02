@@ -7,10 +7,16 @@ fn main() -> anyhow::Result<()> {
     
     let mut projected_score = 0;
     for line in input_lines {
-        // first column is opponent, second is your move
-        // A & X == Rock
-        // B & Y == Paper
-        // C & Z == Scissors
+        // first column is opponent, second is match result
+        // code:
+        //     shape:
+        //         A: Rock
+        //         B: Paper
+        //         C: Scissors
+        //     result:
+        //         X: Lose
+        //         Y: Draw
+        //         Z: Win
         // scoring:
         //     shape:
         //         Rock: 1
@@ -21,15 +27,15 @@ fn main() -> anyhow::Result<()> {
         //         Lose: 0
         //         Draw: 3
         projected_score += match line {
-            "A X" => 4, // Draw w/ Rock
-            "A Y" => 8, // Win  w/ Paper
-            "A Z" => 3, // Lose w/ Scissors
-            "B X" => 1, // Lose w/ Rock
-            "B Y" => 5, // Draw w/ Paper
-            "B Z" => 9, // Win  w/ Scissors
-            "C X" => 7, // Win  w/ Rock
-            "C Y" => 2, // Lose w/ Paper
-            "C Z" => 6, // Draw w/ Scissors
+            "A X" => 3, // Lose vs. Rock
+            "A Y" => 4, // Draw vs. Rock
+            "A Z" => 8, // Win  vs. Rock
+            "B X" => 1, // Lose vs. Paper
+            "B Y" => 5, // Draw vs. Paper
+            "B Z" => 9, // Win  vs. Paper
+            "C X" => 2, // Lose vs. Scissors
+            "C Y" => 6, // Draw vs. Scissors
+            "C Z" => 7, // Win  vs. Scissors
             _ => panic!("Unhandled: '{}'", line),
         };
     }
