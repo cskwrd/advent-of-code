@@ -30,6 +30,7 @@
         "2022/day-1/rust/part-2/Cargo.toml",
         "2022/day-2/rust/part-1/Cargo.toml",
         "2022/day-2/rust/part-2/Cargo.toml",
-        "2022/day-3/rust/part-1/Cargo.toml"
+        "2022/day-3/rust/part-1/Cargo.toml",
+        "2022/day-3/rust/part-2/Cargo.toml"
     ]
 }
