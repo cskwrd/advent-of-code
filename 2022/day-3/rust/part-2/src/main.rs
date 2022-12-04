@@ -1,4 +1,4 @@
-use std::collections::{HashSet, VecDeque};
+use std::collections::HashSet;
 
 fn main() -> anyhow::Result<()> {
     // it is my understanding that include_str "opens" the file at compile time
@@ -8,26 +8,25 @@ fn main() -> anyhow::Result<()> {
     let input_lines = include_str!("../../../aoc-input.txt").lines();
 
     let mut overall_priorities = 0;
-    for rucksack in input_lines {
-        if rucksack.len() % 2 == 0 {
-            let mut items: VecDeque<char> = rucksack.chars().collect();
-            let mut left_compartment = HashSet::<char>::new();
-            let mut right_compartment = HashSet::<char>::new();
-            while !items.is_empty() {
-                let left_item = items.pop_front().expect("left item bad");
-                left_compartment.insert(left_item);
-                let right_item = items.pop_back().expect("right item bad");
-                right_compartment.insert(right_item);
-                if right_compartment.contains(&left_item) {
-                    overall_priorities += get_item_priority(left_item);
-                    break;
-                } else if left_compartment.contains(&right_item) {
-                    overall_priorities += get_item_priority(right_item);
-                    break;
-                }
-            }
+    let mut group = HashSet::<char>::new();
+    for (i, rucksack) in input_lines.enumerate() {
+        if group.is_empty() {
+            group = rucksack.chars().collect::<HashSet<char>>();
         } else {
-            panic!("bad rucksack: not even");
+            let mut new_group = HashSet::<char>::new();
+            group.intersection(&rucksack.chars().collect::<HashSet<char>>()).for_each(|intersected_item| { new_group.insert(*intersected_item); }); // i don't yet understand: https://rust-lang.github.io/rust-clippy/master/index.html#clone_on_copy
+            group = new_group;
+        }
+
+        if (i + 1) % 3 == 0 {
+            if group.len() == 1 {
+                let group_indicator = group.clone().into_iter().next().expect("error getting indicator");
+                println!("Group indicator: '{}'", group_indicator);
+                overall_priorities += get_item_priority(group_indicator);
+                group.clear();
+            } else {
+                panic!("every group needs an indicator");
+            }
         }
     }
 
