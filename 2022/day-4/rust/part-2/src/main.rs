@@ -15,10 +15,8 @@ fn main() -> anyhow::Result<()> {
 fn solve(input_lines: std::str::Lines) -> u32 {
     let mut overlapping_assignments = 0;
     for (first_elf_assignment, right_elf_assignment) in input_lines.map(parse_cleaning_assignments) {
-        let left_assignment_size = first_elf_assignment.len();
-        let right_assignment_size = right_elf_assignment.len();
         let overlap_size = first_elf_assignment.intersection(&right_elf_assignment).collect::<HashSet<&u32>>().len();
-        if overlap_size == left_assignment_size || overlap_size == right_assignment_size {
+        if overlap_size > 0 {
             overlapping_assignments += 1;
         }
     }
@@ -57,6 +55,6 @@ mod tests {
     fn test_solver() {
         // Please note, that private functions can be tested too!
         let input_lines = include_str!("../../../aoc-example-1.txt").lines();
-        assert_eq!(solve(input_lines), 2);
+        assert_eq!(solve(input_lines), 4);
     }
 }
