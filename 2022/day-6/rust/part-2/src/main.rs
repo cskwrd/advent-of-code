@@ -9,13 +9,13 @@ fn main() -> anyhow::Result<()> {
 
     let datastream = get_datastream_from_input(input_lines);
 
-    println!("Start-of-packet marker after num characters: '{}'", solve(datastream));
+    println!("Start-of-packet marker after num characters: '{}'", solve(datastream, 14));
     
     Ok(())
 }
 
-fn solve(datastream: String) -> u32 {
-    if datastream.len() < 4 {
+fn solve(datastream: String, checksum_length: usize) -> u32 {
+    if datastream.len() < checksum_length {
         panic!("datastream not big enough");
     }
     
@@ -23,11 +23,11 @@ fn solve(datastream: String) -> u32 {
     let mut num_chars_processed = 0u32;
     for (i, chr) in datastream.chars().enumerate() {
         start_of_packet_marker.push_back(chr);
-        if HashSet::<char>::from_iter(start_of_packet_marker.clone().into_iter()).len() == 4 {
+        if HashSet::<char>::from_iter(start_of_packet_marker.clone().into_iter()).len() == checksum_length {
             num_chars_processed = i as u32 + 1;
             break;
         }
-        if start_of_packet_marker.len() >= 4 {
+        if start_of_packet_marker.len() >= checksum_length {
             start_of_packet_marker.pop_front();
         }
     }
@@ -56,7 +56,7 @@ mod tests {
 
         let datastream = get_datastream_from_input(input_lines);
 
-        assert_eq!(solve(datastream), 7u32);
+        assert_eq!(solve(datastream, 14), 19u32);
     }
 
     #[test]
@@ -65,7 +65,7 @@ mod tests {
 
         let datastream = get_datastream_from_input(input_lines);
 
-        assert_eq!(solve(datastream), 5u32);
+        assert_eq!(solve(datastream, 14), 23u32);
     }
 
     #[test]
@@ -74,7 +74,7 @@ mod tests {
 
         let datastream = get_datastream_from_input(input_lines);
 
-        assert_eq!(solve(datastream), 6u32);
+        assert_eq!(solve(datastream, 14), 23u32);
     }
 
     #[test]
@@ -83,7 +83,7 @@ mod tests {
 
         let datastream = get_datastream_from_input(input_lines);
 
-        assert_eq!(solve(datastream), 10u32);
+        assert_eq!(solve(datastream, 14), 29u32);
     }
 
     #[test]
@@ -92,6 +92,6 @@ mod tests {
 
         let datastream = get_datastream_from_input(input_lines);
 
-        assert_eq!(solve(datastream), 11u32);
+        assert_eq!(solve(datastream, 14), 26u32);
     }
 }
