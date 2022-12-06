@@ -104,17 +104,17 @@ fn solve(mut stacks: Vec<VecDeque<char>>, input_lines: std::str::Lines) -> Strin
         let src_stack = tokens.get(3).expect("cannot read source stack index").parse::<usize>().expect("cannot parse source stack index") - 1;
         let dst_stack = tokens.get(5).expect("cannot read destination stack index").parse::<usize>().expect("cannot parse destination stack index") - 1;
         
-        let mut crane = VecDeque::<char>::new();
+        let mut crane = Vec::<char>::new();
         let mut stack = stacks.get_mut(src_stack).expect("cannot find source stack");
         while crane.len() < num_crates {
             if stack.is_empty() {
                 panic!("source stack is empty");
             }
-            crane.push_front(stack.pop_front().expect("cannot pull another crate from stack"));
+            crane.push(stack.pop_front().expect("cannot pull another crate from stack"));
         }
         stack = stacks.get_mut(dst_stack).expect("cannot find destination stack");
         while !crane.is_empty() {
-            stack.push_front(crane.pop_back().expect("crane could not release crate"));
+            stack.push_front(crane.pop().expect("crane could not release crate"));
         }
     }
     let mut top_crates = String::new();
@@ -152,6 +152,6 @@ mod tests {
         stack.push_front('P');
         stacks.push(stack);
 
-        assert_eq!(solve(stacks, input_lines), "CMZ");
+        assert_eq!(solve(stacks, input_lines), "MCD");
     }
 }
