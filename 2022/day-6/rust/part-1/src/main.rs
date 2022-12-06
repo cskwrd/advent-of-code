@@ -18,7 +18,7 @@ fn solve(datastream: String) -> u32 {
     if datastream.len() < 4 {
         panic!("datastream not big enough");
     }
-    let mut start_of_packet_uniqueness_indicator = HashSet::<char>::new();
+    
     let mut start_of_packet_marker = VecDeque::<char>::new();
     let mut num_chars_processed = 0u32;
     for (i, chr) in datastream.chars().enumerate() {
@@ -31,6 +31,11 @@ fn solve(datastream: String) -> u32 {
             start_of_packet_marker.pop_front();
         }
     }
+
+    if num_chars_processed == 0u32 {
+        panic!("invalid datastream, no matching sequence");
+    }
+    
     num_chars_processed
 }
 
