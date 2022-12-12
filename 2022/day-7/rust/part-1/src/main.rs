@@ -18,19 +18,31 @@ fn parse_cd(i: &str) -> IResult<&str, Cd> {
 
 #[derive(Debug)]
 enum Command {
-    Ls(Ls),
-    Cd(Cd),
+    Ls,
+    Cd(PathBuf),
+}
+
+impl From<Ls> for Command {
+    fn from(_ls: Ls) -> Self {
+        Command::Ls
+    }
+}
+
+impl From<Cd> for Command {
+    fn from(cd: Cd) -> Self {
+        Command::Cd(cd.0)
+    }
 }
 
 fn parse_command(i: &str) -> IResult<&str, Command> {
     let (i, _) = tag("$ ")(i)?;
-    alt((map(parse_ls, Command::Ls), map(parse_cd, Command::Cd)))(i)
+    alt((map(parse_ls, Into::into), map(parse_cd, Into::into)))(i)
 }
 
 #[derive(Debug)]
 enum Entry {
     Dir(PathBuf),
-    File(u64, PathBuf),
+    File(u32, PathBuf),
 }
 
 fn parse_path(path: &str) -> IResult<&str, PathBuf> {
@@ -42,7 +54,7 @@ fn parse_path(path: &str) -> IResult<&str, PathBuf> {
 
 fn parse_entry(i: &str) -> IResult<&str, Entry> {
     let parse_file = map(
-        separated_pair(nom::character::complete::u64, tag(" "), parse_path),
+        separated_pair(nom::character::complete::u32, tag(" "), parse_path),
         |(size, path)| Entry::File(size, path),
     );
     let parse_dir = map(preceded(tag("dir "), parse_path), Entry::Dir);
@@ -70,50 +82,54 @@ fn main() -> anyhow::Result<()> {
     // normally that wouldn't be ideal
     let input_lines = include_str!("../../../aoc-input.txt")
         .lines()
-        .map(|l| all_consuming(parse_line)(l).finish().unwrap().1);
+        .map(|l| all_consuming(parse_line)(l).finish().unwrap().1)
+        .collect();
 
-    for line in input_lines {
-        println!("{line:?}");
-    }
-
-    //println!("dir size: '{}'", solve(input_lines, 100000));
+    println!("dir size: '{}'", solve(input_lines, 100000));
     
     Ok(())
 }
 
-fn solve(input_lines: std::str::Lines, max_size: u32) -> u32 {
+fn solve(input_lines: Vec<Line>, max_size: u32) -> u32 {
     let mut working_dir = Path::new(".").to_path_buf();
     let mut du = HashMap::<PathBuf, u32>::new(); // du, like the command
     for line in input_lines {
-        if line.starts_with("$ ") {
-            let cmd_line = line.strip_prefix("$ ").expect("invalid cmd line");
-            if cmd_line.starts_with("cd ") {
-                let new_dir = cmd_line.strip_prefix("cd ").expect("invalid cd cmd");
-                let mut child_dir_size = 0u32;
-                if new_dir != ".." {
-                    working_dir.push(new_dir);
-                } else {
-                    if let Some(disk_space_used) = du.get(&working_dir) {
-                        child_dir_size = *disk_space_used;
+        match line {
+            Line::Command(command) => match command {
+                Command::Cd(_test) => {
+                    let mut child_dir_size = 0u32;
+                    match _test.to_str().unwrap() {
+                        ".." => {
+                            if let Some(disk_space_used) = du.get(&working_dir) {
+                                child_dir_size = *disk_space_used;
+                            }
+                            working_dir.pop();
+                        }
+                        _ => {
+                            working_dir.push(_test);
+                        }
+                    };
+                    
+                    if let Some(disk_space_used) = du.get_mut(&working_dir) {
+                        *disk_space_used += child_dir_size;
+                    } else {
+                        du.insert(working_dir.clone(), 0u32);
                     }
-                    working_dir.pop();
                 }
-                if let Some(disk_space_used) = du.get_mut(&working_dir) {
-                    *disk_space_used += child_dir_size;
-                } else {
-                    du.insert(working_dir.clone(), 0u32);
+                Command::Ls => {
+                    // do nothing with this command, it doesn't really change anything in the big picture
+                },
+            }
+            Line::Entry(entry) => match entry {
+                Entry::Dir(_dir) => {
+                    // do nothing with this type of entry, it doesn't really change anything in the big picture
                 }
-                println!("pwd: '{:?}'", working_dir);
-            }
-        } else if !line.starts_with("dir ") {
-            let (size_str, file_name) = line.split_once(' ').expect("unable to parse file listing");
-            let file_size = size_str.parse::<u32>().expect("unable to parse file size");
-            
-            println!("file: '{}' (size: {})", file_name, file_size);
-            
-            if let Some(disk_space_used) = du.get_mut(&working_dir) {
-                *disk_space_used += file_size;
-            }
+                Entry::File(size, _file) => {
+                    if let Some(disk_space_used) = du.get_mut(&working_dir) {
+                        *disk_space_used += size;
+                    }
+                }
+            },
         }
     }
     println!("du: {:?}", du);
@@ -129,11 +145,10 @@ mod tests {
     #[test]
     fn test_solver_1() {
         // Please note, that private functions can be tested too!
-        let input_lines = include_str!("../../../aoc-example-1.txt").lines();//.collect::<Vec<_>>();
-
-        // let thing = input_lines.split(|line| line.starts_with('$')).collect::<Vec<_>>();
-
-        // println!("split lines: {:?}", thing);
+        let input_lines = include_str!("../../../aoc-example-1.txt")
+            .lines()
+            .map(|l| all_consuming(parse_line)(l).finish().unwrap().1)
+            .collect();
 
         assert_eq!(solve(input_lines, 100000), 95437u32);
     }
