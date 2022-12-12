@@ -47,7 +47,7 @@ enum Entry {
 
 fn parse_path(path: &str) -> IResult<&str, PathBuf> {
     map(
-        take_while1(|c| "abcdefghijklmnopqrstuvwxyz./".contains(c)),
+        take_while1(|c| "abcdefghijklmnopqrstuvwxyz./\\".contains(c)),
         Into::into
     )(path)
 }
@@ -80,34 +80,38 @@ fn main() -> anyhow::Result<()> {
     // this means that we check the file exists at compile time and don't need to handle an error here
     // it also means that the file's contents is compiled into the resulting binary
     // normally that wouldn't be ideal
-    let input_lines = include_str!("../../../aoc-input.txt")
+    let mut input_lines = include_str!("../../../aoc-input.txt")
         .lines()
-        .map(|l| all_consuming(parse_line)(l).finish().unwrap().1)
-        .collect();
+        .map(|l| all_consuming(parse_line)(l).finish().unwrap().1);
 
-    println!("dir size: '{}'", solve(input_lines, 100000));
+    println!("dir size: '{}'", solve(&mut input_lines, 70000000u32, 30000000u32));
     
     Ok(())
 }
 
-fn solve(input_lines: Vec<Line>, max_size: u32) -> u32 {
+fn solve(session_io_iterator: &mut dyn Iterator<Item = Line>, total_filesystem_size: u32, needed_free_space: u32) -> u32 {
     let mut working_dir = Path::new(".").to_path_buf();
     let mut du = HashMap::<PathBuf, u32>::new(); // du, like the command
-    for line in input_lines {
+    for line in session_io_iterator {
         match line {
             Line::Command(command) => match command {
-                Command::Cd(_test) => {
+                Command::Cd(dest) => {
                     let mut child_dir_size = 0u32;
-                    match _test.to_str().unwrap() {
+                    match dest.to_str().unwrap() {
                         ".." => {
                             if let Some(disk_space_used) = du.get(&working_dir) {
                                 child_dir_size = *disk_space_used;
                             }
+                            dbg!(&dest);
+                            dbg!(&working_dir);
                             working_dir.pop();
-                        }
+                        },
+                        "/" => {
+                            working_dir.push("\\");
+                        },
                         _ => {
-                            working_dir.push(_test);
-                        }
+                            working_dir.push(dest);
+                        },
                     };
                     
                     if let Some(disk_space_used) = du.get_mut(&working_dir) {
@@ -133,7 +137,16 @@ fn solve(input_lines: Vec<Line>, max_size: u32) -> u32 {
         }
     }
     println!("du: {:?}", du);
-    du.values().filter(|size| **size <= max_size).sum()
+    let working_dir_size = du.get(&working_dir).expect("working dir must have size here").clone();
+    if let Some(disk_space_used) = du.get_mut(&(working_dir.parent().unwrap().to_path_buf())) {
+        *disk_space_used += working_dir_size;
+    }
+    println!("du: {:?}", du);
+    // the following line assumes windows path
+    let used_space = du.get(&(Path::new("\\").to_path_buf())).expect("working dir must have size here");
+    let remaining_free_space = total_filesystem_size - used_space;
+    dbg!(&remaining_free_space);
+    du.values().filter(|size| **size + remaining_free_space >= needed_free_space).min().expect("a entry must be deleted").to_owned()
 }
 
 #[cfg(test)]
@@ -145,11 +158,10 @@ mod tests {
     #[test]
     fn test_solver_1() {
         // Please note, that private functions can be tested too!
-        let input_lines = include_str!("../../../aoc-example-1.txt")
+        let mut input_lines = include_str!("../../../aoc-example-1.txt")
             .lines()
-            .map(|l| all_consuming(parse_line)(l).finish().unwrap().1)
-            .collect();
+            .map(|l| all_consuming(parse_line)(l).finish().unwrap().1);
 
-        assert_eq!(solve(input_lines, 100000), 95437u32);
+        assert_eq!(solve(&mut input_lines, 70000000u32, 30000000u32), 24933642u32);
     }
 }
