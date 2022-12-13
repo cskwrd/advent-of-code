@@ -102,8 +102,6 @@ fn solve(session_io_iterator: &mut dyn Iterator<Item = Line>, total_filesystem_s
                             if let Some(disk_space_used) = du.get(&working_dir) {
                                 child_dir_size = *disk_space_used;
                             }
-                            dbg!(&dest);
-                            dbg!(&working_dir);
                             working_dir.pop();
                         },
                         "/" => {
@@ -136,16 +134,22 @@ fn solve(session_io_iterator: &mut dyn Iterator<Item = Line>, total_filesystem_s
             },
         }
     }
-    println!("du: {:?}", du);
-    let working_dir_size = du.get(&working_dir).expect("working dir must have size here").clone();
-    if let Some(disk_space_used) = du.get_mut(&(working_dir.parent().unwrap().to_path_buf())) {
-        *disk_space_used += working_dir_size;
+    
+    // roll up last size calculation
+    loop {
+        let working_dir_size = *du.get(&working_dir).expect("working dir must have size here");
+        if let Some(disk_space_used) = du.get_mut(&(working_dir.parent().unwrap().to_path_buf())) {
+            *disk_space_used += working_dir_size;
+        }
+        if !working_dir.pop() || working_dir.to_str().unwrap() == "\\" {
+            break;
+        }
     }
-    println!("du: {:?}", du);
+    
     // the following line assumes windows path
     let used_space = du.get(&(Path::new("\\").to_path_buf())).expect("working dir must have size here");
     let remaining_free_space = total_filesystem_size - used_space;
-    dbg!(&remaining_free_space);
+    
     du.values().filter(|size| **size + remaining_free_space >= needed_free_space).min().expect("a entry must be deleted").to_owned()
 }
 
