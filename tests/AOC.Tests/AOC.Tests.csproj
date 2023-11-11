@@ -22,4 +22,12 @@
     </PackageReference>
   </ItemGroup>
 
+  <ItemGroup>
+    <EmbeddedResource Include="Resources/Input/TwoThousand/TwentyTwo/Day1/Part1Example.txt" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Folder Include="Common/" />
+  </ItemGroup>
+
 </Project>
