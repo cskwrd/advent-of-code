@@ -23,11 +23,11 @@
   </ItemGroup>
 
   <ItemGroup>
-    <EmbeddedResource Include="Resources/Input/TwoThousand/TwentyTwo/Day1/Part1Example.txt" />
+    <EmbeddedResource Include="**\*.input.txt" />
   </ItemGroup>
-
+  
   <ItemGroup>
-    <Folder Include="Common/" />
+    <ProjectReference Include="..\..\src\AOC\AOC.csproj" />
   </ItemGroup>
 
 </Project>

@@ -1,15 +1,29 @@
 namespace AOC.Tests.Common;
 public class TestBase
 {
-    public string ReadFromResource(string resourceName)
+    public async Task<string> ReadFromResourceAsync(string resourceName)
     {
+        if (string.IsNullOrWhiteSpace(resourceName))
+        {
+            throw new ArgumentException("Resource name cannot be null", nameof(resourceName));
+        }
+
         Assembly assembly = Assembly.GetExecutingAssembly();
 
-        using (Stream? stream = assembly!.GetManifestResourceStream(resourceName))
-        using (StreamReader reader = new(stream!))
+        if (assembly is null)
         {
-            string result = reader.ReadToEnd();
-            return result;
+            throw new Exception("Something bad happened, assembly is null!");
         }
+
+        using var stream = assembly.GetManifestResourceStream(resourceName);
+
+        if (stream is null)
+        {
+            throw new Exception("Something bad happened, stream is null!");
+        }
+
+        using var reader = new StreamReader(stream);
+
+        return await reader.ReadToEndAsync();
     }
 }
