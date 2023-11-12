@@ -2,8 +2,6 @@
 namespace AOC.TwentyTwo;
 public class Day1 : DayBase
 {
-    private static readonly List<long> _emptyParsedPocketContents = new List<long> { 0 };
-
     public override string AnswerPart1(string input) => TakeInventory(input).Max().ToString();
     public override string AnswerPart2(string input) => TakeInventory(input).OrderDescending().Take(3).DefaultIfEmpty(0).Sum().ToString();
 
