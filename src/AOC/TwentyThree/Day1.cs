@@ -2,32 +2,23 @@
 namespace AOC.TwentyThree;
 public class Day1 : DayBase
 {
-    public override string AnswerPart1(string input) => DecipherCalibrationDocument(input, FilterNonDigitsStrategy).Sum().ToString();
+    public override string AnswerPart1(string input) => ReadCalibrationValuesFromCalibrationDocument(input)
+        .Where(LineIsNotEmpty)
+        .Select(SelectFirstLastDigitStrategyEZ)
+        .Select(long.Parse)
+        .Sum()
+        .ToString();
+
     public override string AnswerPart2(string input) => ReadCalibrationValuesFromCalibrationDocument(input)
-        .Where(v => string.IsNullOrWhiteSpace(v) == false)
-        .Select(ConvertWordsToDigitsStrategy)
-        .Select(FilterNonDigitsStrategy)
+        .Where(LineIsNotEmpty)
         .Select(SelectFirstLastDigitStrategy)
         .Select(long.Parse)
         .Sum()
         .ToString();
 
-    private static IEnumerable<long> DecipherCalibrationDocument(string input, Func<string, string> ParseCalibrationValue)
-    {
-        var calibrationData = ConvertInputToCalibrationData(input);
-
-        return calibrationData.Select(ParseCalibrationValue)
-            .Where(d => !string.IsNullOrWhiteSpace(d))
-            .Select(d => $"{d.First()}{d.Last()}")
-            .Select(long.Parse)
-            .DefaultIfEmpty(0);
-    }
-
     private static IEnumerable<string> ReadCalibrationValuesFromCalibrationDocument(string input) => ConvertInputToCalibrationData(input);
 
-    private static string FilterNonDigitsStrategy(string d) => new(d.Where(char.IsDigit).ToArray());
-
-    private static string SelectFirstLastDigitStrategy(string d, int index)
+    private static string SelectFirstLastDigitStrategyEZ(string d, int index)
     {
         try
         {
@@ -38,8 +29,8 @@ public class Day1 : DayBase
             throw new Exception($"Bad word at: '{index}'");
         }
     }
-    
-    private static readonly Dictionary<string, string> _replacibles = new()
+
+    private static readonly Dictionary<string, string> _digits = new()
     {
         ["ONE"] = "1",
         ["TWO"] = "2",
@@ -50,30 +41,37 @@ public class Day1 : DayBase
         ["SEVEN"] = "7",
         ["EIGHT"] = "8",
         ["NINE"] = "9",
+        ["0"] = "0",
+        ["1"] = "1",
+        ["2"] = "2",
+        ["3"] = "3",
+        ["4"] = "4",
+        ["5"] = "5",
+        ["6"] = "6",
+        ["7"] = "7",
+        ["8"] = "8",
+        ["9"] = "9",
     };
-    public static string ConvertWordsToDigitsStrategy(string d)
+    public static string SelectFirstLastDigitStrategy(string d)
     {
         d = d.ToUpperInvariant();
-        SortedDictionary<int, KeyValuePair<string, string>> replaceActions;
+        KeyValuePair<int, string> left = new(d.Length, string.Empty);
+        KeyValuePair<int, string> right = new(-1, string.Empty);
         int index;
-        do
+        foreach (var digit in _digits)
         {
-            replaceActions = new();
-            foreach (var replacible in _replacibles)
+            index = d.IndexOf(digit.Key);
+            if (index >= 0 && index <= left.Key) // <= feels a little wrong because there shouldnt be any overlapping indices, but just < feels more wrong
             {
-                index = d.IndexOf(replacible.Key);
-                if (index >= 0)
-                {
-                    replaceActions.Add(index, replacible);
-                }
+                left = new(index, digit.Value);
             }
-            foreach (var replaceAction in replaceActions)
+            index = d.LastIndexOf(digit.Key);
+            if (index >= right.Key) // >= feels a little wrong because there shouldnt be any overlapping indices, but just > feels more wrong
             {
-                var action = replaceAction.Value;
-                d = d.Replace(action.Key, action.Value);
+                right = new(index, digit.Value);
             }
-        } while (replaceActions.Any());
-        return d;
+        }
+        return $"{left.Value}{right.Value}";
     }
 
     private static IEnumerable<string> ConvertInputToCalibrationData(string input)

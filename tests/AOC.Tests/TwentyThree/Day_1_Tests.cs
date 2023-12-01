@@ -34,24 +34,6 @@ public class Day_1_Tests : TestBase
 
         answer.Should().Be("54990");
     }
-
-    [Fact]
-    public Task WordConvert1()
-    {
-        const string input = @"zoneight234";
-        const string expected = @"Z1IGHT234";
-        Day1.ConvertWordsToDigitsStrategy(input).Should().Be(expected);
-        return Task.CompletedTask;
-    }
-
-    [Fact]
-    public Task WordConvert2()
-    {
-        const string input = @"eightwothree";
-        const string expected = @"8WO3";
-        Day1.ConvertWordsToDigitsStrategy(input).Should().Be(expected);
-        return Task.CompletedTask;
-    }
     
     [Fact]
     public async Task Part2Example()
@@ -74,6 +56,6 @@ public class Day_1_Tests : TestBase
 
         string answer = sut.AnswerPart2(input);
 
-        answer.Should().Be("210367");
+        answer.Should().Be("54473");
     }
 }
