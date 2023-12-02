@@ -1,7 +1,7 @@
 namespace AOC.Tests.Common;
 public class TestBase
 {
-    public async Task<string> ReadFromResourceAsync(string resourceName)
+    public static async Task<string> ReadFromResourceAsync(string resourceName)
     {
         if (string.IsNullOrWhiteSpace(resourceName))
         {

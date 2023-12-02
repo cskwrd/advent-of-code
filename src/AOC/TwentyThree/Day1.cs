@@ -16,7 +16,7 @@ public class Day1 : DayBase
         .Sum()
         .ToString();
 
-    private static IEnumerable<string> ReadCalibrationValuesFromCalibrationDocument(string input) => ConvertInputToCalibrationData(input);
+    private static IEnumerable<string> ReadCalibrationValuesFromCalibrationDocument(string input) => ConvertInputToLines(input);
 
     private static string SelectFirstLastDigitStrategyEZ(string d, int index)
     {
@@ -72,14 +72,5 @@ public class Day1 : DayBase
             }
         }
         return $"{left.Value}{right.Value}";
-    }
-
-    private static IEnumerable<string> ConvertInputToCalibrationData(string input)
-    {
-        if (string.IsNullOrWhiteSpace(input) == false)
-        {
-            return input.Split(Environment.NewLine, StringSplitOptions.TrimEntries);
-        }
-        return Enumerable.Empty<string>();
     }
 }
