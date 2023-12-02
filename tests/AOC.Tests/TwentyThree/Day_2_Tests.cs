@@ -34,7 +34,7 @@ public class Day_2_Tests : TestBase
         answer.Should().Be("2439");
     }
     
-    [Fact(Skip = "Not Implemented")]
+    [Fact]
     public async Task Part2Example()
     {
         var input = await ReadFromResourceAsync(EXAMPLE_INPUT);
@@ -43,10 +43,10 @@ public class Day_2_Tests : TestBase
 
         string answer = sut.AnswerPart2(input);
 
-        answer.Should().Be("12");
+        answer.Should().Be("2286");
     }
     
-    [Fact(Skip = "Not Implemented")]
+    [Fact]
     public async Task Part2()
     {
         var input = await ReadFromResourceAsync(PUZZLE_INPUT);
@@ -55,6 +55,6 @@ public class Day_2_Tests : TestBase
 
         string answer = sut.AnswerPart2(input);
 
-        answer.Should().Be("12014");
+        answer.Should().Be("63711");
     }
 }

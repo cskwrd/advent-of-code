@@ -16,10 +16,29 @@ public class Day2 : DayBase
         return answer;
     }
 
-    private bool GamePossibleBasedOnParameters(Game game)
+    public override string AnswerPart2(string input)
     {
-        return game.Sets.All(s => s.Red <= _red && s.Green <= _green && s.Blue <= _blue);
+        var lines = ConvertInputToLines(input);
+        var nonEmptyLines = lines.Where(LineIsNotEmpty);
+        var games = nonEmptyLines.Select(GameFromLine);
+        var minSetsRequired = games.Select(MinRequiredCubeSetFromGame);
+        var answer = minSetsRequired.Select(s => s.Red * s.Green * s.Blue).Sum().ToString();
+        return answer;
     }
+
+    private Set MinRequiredCubeSetFromGame(Game game)
+    {
+        long red = 0, green = 0, blue = 0;
+        foreach (var set in game.Sets)
+        {
+            red = Math.Max(red, set.Red);
+            green = Math.Max(green, set.Green);
+            blue = Math.Max(blue, set.Blue);
+        }
+        return new Set(red, green, blue);
+    }
+
+    private bool GamePossibleBasedOnParameters(Game game) => game.Sets.All(s => s.Red <= _red && s.Green <= _green && s.Blue <= _blue);
 
     private Game GameFromLine(string line)
     {
@@ -68,8 +87,6 @@ public class Day2 : DayBase
         var colorData = cubeData.Split(" ", StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries);
         return (color: colorData[1], numCubes: int.Parse(colorData[0]));
     }
-
-    public override string AnswerPart2(string input) => throw new NotImplementedException();
 
     private class Game
     {
