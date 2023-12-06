@@ -1,6 +1,4 @@
-﻿
-
-namespace AOC.TwentyThree;
+﻿namespace AOC.TwentyThree;
 public class Day2 : DayBase
 {
     private const int _red = 12;

@@ -1,5 +1,4 @@
-﻿
-namespace AOC.TwentyThree;
+﻿namespace AOC.TwentyThree;
 public class Day1 : DayBase
 {
     public override string AnswerPart1(string input) => ReadCalibrationValuesFromCalibrationDocument(input)
