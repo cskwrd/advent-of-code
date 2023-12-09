@@ -1,6 +1,8 @@
 namespace AOC.Tests.Common;
 public class TestBase
 {
+    public const string NOT_READY = @"Test not ready";
+
     public static async Task<string> ReadFromResourceAsync(string resourceName)
     {
         if (string.IsNullOrWhiteSpace(resourceName))
