@@ -7,15 +7,26 @@ let getInput (inputPath: string) =
     |> Array.filter (fun line -> not (String.IsNullOrWhiteSpace(line)))
 
 let solveForInput (inputPath: string) =
+    let mulEnabled = ref true
+    
     getInput inputPath
     |> Seq.collect (fun memoryDump ->
         // this seems like a lot of work just to get the matches out...
         seq {
-            for m in Regex.Matches(memoryDump, @"mul\((?<left>\d+),(?<right>\d+)\)", RegexOptions.Compiled ||| RegexOptions.IgnoreCase) do
-                yield m
+            for m in Regex.Matches(memoryDump, @"do\(\)|don't\(\)|mul\((?<left>\d+),(?<right>\d+)\)", RegexOptions.Compiled ||| RegexOptions.IgnoreCase) do
+                let matchValue = m.Value
+
+                if matchValue.StartsWith("do") then
+                    if matchValue = "don't()" then
+                        mulEnabled.Value <- false
+                    else if matchValue = "do()" then
+                        mulEnabled.Value <- true
+                else if mulEnabled.Value then
+                    yield m
         }
     )
     |> Seq.map (fun parsedOp ->
+        // printfn "%A" parsedOp
         let left = new bigint(Int64.Parse(parsedOp.Groups["left"].Value))
         let right = new bigint(Int64.Parse(parsedOp.Groups["right"].Value))
 
@@ -38,8 +49,8 @@ let processProblem solveForInput (inputs: Map<string, string>) =
         )
 
 let solve = processProblem solveForInput (Map.ofList [
-    "[EXAMPLE]", "./Input/Example1.input.txt" // ans: 161
-    "[PUZZLE]", "./Input/Puzzle.input.txt" // ans: 167650499
+    "[EXAMPLE]", "./Input/Example2.input.txt" // ans: 48
+    "[PUZZLE]", "./Input/Puzzle.input.txt" // ans: 97836217, too high
 ])
 
 solve (fun label result -> printfn "%s The answer is: %A" label result)
